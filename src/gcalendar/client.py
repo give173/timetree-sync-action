@@ -36,24 +36,33 @@ class GoogleCalendarClient:
         )
 
     def list_events(self, calendar_id: str):
-        events = []
-        page_token = None
-        while True:
-            response = (
-                self._service.events()
-                .list(
-                    calendarId=calendar_id,
-                    singleEvents=True,
-                    maxResults=2500,
-                    pageToken=page_token,
-                )
-                .execute()
+    events = []
+    page_token = None
+
+    while True:
+        response = (
+            self._service.events()
+            .list(
+                calendarId=calendar_id,
+                singleEvents=False,
+                maxResults=2500,
+                pageToken=page_token,
             )
-            events.extend(response.get("items", []))
-            page_token = response.get("nextPageToken")
-            if not page_token:
-                break
-        return events
+            .execute()
+        )
+
+        # 繰り返し予定は親イベントだけを同期対象にする。
+        # 個別に変更された回（exception）は重複判定から除外する。
+        for event in response.get("items", []):
+            if event.get("recurringEventId"):
+                continue
+            events.append(event)
+
+        page_token = response.get("nextPageToken")
+        if not page_token:
+            break
+
+    return events
 
     def update_event(self, calendar_id: str, event_id: str, event: dict):
         return (
