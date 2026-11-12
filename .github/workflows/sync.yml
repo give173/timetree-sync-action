@@ -3,7 +3,7 @@ name: TimeTree Sync
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "49 * * * *"
 
 jobs:
   sync:
