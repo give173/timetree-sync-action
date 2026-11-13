@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: "49 * * * *"
 
+concurrency:
+  group: timetree-google-family-sync
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
